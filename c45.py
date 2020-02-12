@@ -13,7 +13,7 @@ def missing_value(data, target):
                     t = target[i]
                     values = []
                     for k in range(len(target)):
-                        if target[k] == t:
+                        if target[k] == t and k != i:
                             values.append(data[k][j])
                     data[i][j] = mode(values)
 
@@ -42,9 +42,4 @@ for x in data_play_tennis:
     data_play_tennis_data.append(x[:-1][1:])
 data_play_tennis_data
 
-# Missing-value
-print(data_play_tennis_data)
-
-# No missing-value
 missing_value(data_play_tennis_data, data_play_tennis_target)
-print(data_play_tennis_data)
