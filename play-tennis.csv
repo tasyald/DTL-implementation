@@ -1,4 +1,4 @@
-day,outlook,temp,humidity,wind,play
+day,Outlook,Temp,humidity,wind,play
 D1,Sunny,,High,Weak,No
 D2,Sunny,Hot,High,Strong,No
 D3,Overcast,Hot,High,Weak,Yes

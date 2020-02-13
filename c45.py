@@ -8,6 +8,7 @@ import copy
 from sklearn.model_selection import train_test_split
 import numpy
 
+
 def entropy_count (dictionary) :
     sumentropy = 0
     counttotal = 0
@@ -136,9 +137,30 @@ def split_validation_data(data, target):
     print('Test')
     print(test_data)
 
-# def accuracy(data, target):
-#     myC45(data, target)
+def rule_set(tree_dictionary, rule) :
+    if not(type(tree_dictionary) is dict) :
+        return 
+    pass
 
+def evaluate(tree_dictionary, row, original_target, header):
+    if not(type(tree_dictionary) is dict) :
+        print (tree_dictionary)
+        return original_target == tree_dictionary
+    else :
+        for item in tree_dictionary :
+            if row[header.index(item.lower())] in tree_dictionary[item]:
+                return predict(tree_dictionary[item][row[header.index(item.lower())]],row,original_target,header)
+        return False
+        
+def accuracy(data, target, header):
+    dummy_tree = {'Outlook': {'Sunny': {'humidity': { 'High': ['No']}}, 'Overcast': ['Yes'], 'Rain': {'wind': {'Weak': ['Yes'], 'Strong': ['No']}}}}
+    count_true = 0
+    for i in range(0,len(data)) : 
+        if evaluate(dummy_tree,data[i], target[i], header) :
+            count_true = count_true + 1
+    return count_true/len(data)
+
+def pruning(data)
 
 def myC45(data, target):
     tempdict = {}
@@ -172,8 +194,11 @@ print(data_iris_target)
 # Read play-tennis dataset
 data_play_tennis = pd.read_csv('play-tennis.csv')
 data_play_tennis = data_play_tennis.values.tolist()
-data_play_tennis
-
+data_play_tennis_header = pd.read_csv('play-tennis.csv',nrows = 1).columns[1:5]
+data_play_tennis_header = data_play_tennis_header.tolist()
+print(data_play_tennis_header)
+for i in range(0,len(data_play_tennis_header)) :
+    data_play_tennis_header[i] = data_play_tennis_header[i].lower()
 # play-tennis target
 data_play_tennis_target = []
 for x in data_play_tennis:
@@ -185,6 +210,8 @@ data_play_tennis_data = []
 for x in data_play_tennis:
     data_play_tennis_data.append(x[:-1][1:])
 data_play_tennis_data
+
+print (accuracy(data_play_tennis_data, data_play_tennis_target, data_play_tennis_header))
 
 missing_value(data_play_tennis_data, data_play_tennis_target)
 data_play_tennis_data_tranpose = list(zip(*data_play_tennis_data))
