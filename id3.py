@@ -53,9 +53,6 @@ def entropy_count (dictionary) :
     return sumentropy
 
 def information_gain (dictionary) :
-    
-    # print(dictionary)
-    # print("jancok")
     total_entropy_dict = {"total" : {}}
     
     for attr in dictionary :
@@ -66,9 +63,7 @@ def information_gain (dictionary) :
                 total_entropy_dict["total"][target] = dictionary[attr][target]; 
     total_dataset = 0
     for target in total_entropy_dict["total"]:
-        total_dataset = total_dataset + total_entropy_dict["total"][target] 
-    # print(total_entropy_dict)
-    # print(total_dataset)
+        total_dataset = total_dataset + total_entropy_dict["total"][target]
     entropy_total = entropy_count(total_entropy_dict["total"])
 
     temp_gain = 0
@@ -93,7 +88,7 @@ def remove_root(data, target, val):
 
     return dataret, targetret
 
-def id3(data, target, tree=None):
+def myID3(data, target, tree=None):
     if tree is None:
         tree = {}
 
@@ -103,6 +98,7 @@ def id3(data, target, tree=None):
         gainParam = attribute_table(data, target)
         gainList = []
         for i in gainParam:
+            print("gp", i)
             res = information_gain(gainParam[i])
             gainList.append(res)
         root = gainList.index(max(gainList))
@@ -114,7 +110,7 @@ def id3(data, target, tree=None):
             if entropy_count(entropy_table(dataret, targetret)) == 0:
                 tree[rootVal][i] = targetret[0]
             else:
-                tree[rootVal][i] = id3(dataret, targetret)
+                tree[rootVal][i] = myID3(dataret, targetret)
 
     return tree
 
@@ -149,5 +145,4 @@ for x in data_play_tennis:
     data_play_tennis_data.append(x[:-1][1:])
 data_play_tennis_data
 
-print(pretty(id3(data_play_tennis_data, data_play_tennis_target)))
-print(id3(data_play_tennis_data, data_play_tennis_target))
+print(pretty(myID3(data_play_tennis_data, data_play_tennis_target)))

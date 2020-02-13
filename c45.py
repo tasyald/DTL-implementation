@@ -7,17 +7,21 @@ from collections import Counter
 import copy
 from sklearn.model_selection import train_test_split
 import numpy
+from operator import itemgetter
 
 def entropy_count (dictionary) :
     sumentropy = 0
     counttotal = 0
     for item in dictionary :
         counttotal = counttotal + dictionary[item]
-    for item in dictionary :
-        probability = dictionary[item]/counttotal
-        if not (probability ==0):
-            sumentropy = sumentropy - (probability)*math.log2(probability)
-    return sumentropy
+    if not (counttotal == 0):
+        for item in dictionary :
+            probability = dictionary[item]/counttotal
+            if not (probability ==0):
+                sumentropy = sumentropy - (probability)*math.log2(probability)
+        return sumentropy
+    else :
+        return 0 
 
 def information_gain (dictionary) :
     total_entropy_dict = {"total" : {}}
@@ -31,7 +35,6 @@ def information_gain (dictionary) :
     for target in total_entropy_dict["total"]:
         total_dataset = total_dataset + total_entropy_dict["total"][target]
     entropy_total = entropy_count(total_entropy_dict["total"])
-    # print(entropy_total)
     temp_gain = 0
     for attr in dictionary :        
         count_total_attribute = 0
@@ -39,13 +42,9 @@ def information_gain (dictionary) :
         for target in dictionary[attr] : 
             count_total_attribute = count_total_attribute + dictionary[attr][target] 
         temp_gain = temp_gain - (count_total_attribute/total_dataset) * entropy_attr
-    # print("INI GAINNYA")
-    # print(entropy_total + temp_gain)
     return entropy_total + temp_gain
-        # entropy_count(attrdict[attr])
 
 def gain_ratio(dictionary):
-    print('dict', dictionary)
     total_entropy_dict = {"total" : {}}
     for attr in dictionary:
         for target in dictionary[attr] : 
@@ -66,13 +65,17 @@ def gain_ratio(dictionary):
             count_total_attribute = count_total_attribute + dictionary[attr][target] 
         temp_gain = temp_gain - (count_total_attribute/total_dataset) * entropy_attr
         split = split - (count_total_attribute/total_dataset) * math.log2(count_total_attribute/total_dataset)
-    gain = entropy_total + temp_gain
-    print('SPLIT: ', split)
-    print('INI GAIN RATIO: ', gain/split)
+        gain = entropy_total + temp_gain
+    try:
+        ratio = gain/split
+    except:
+        ratio = 0
+    return ratio
     
 
-def continouous_value (data, target) :
+def continuous_value (data, target) :
     tempdict = {}
+    init_target = copy.deepcopy(target)
     for cell in target : 
         tempdict[str(cell[0])] = 0
     attrdict = {}
@@ -82,34 +85,35 @@ def continouous_value (data, target) :
     target.sort(key=itemgetter(1), reverse=False)
     previous_value = target[0][0]
     best_gain = -999
+    print(target)
     for j in range(1,len(target)) :
         if not(previous_value == target[j][0]):
-            # print(previous_value)
             previous_value = target[j][0]
-            attrdict = {"<"+str(target[j+1][1]):copy.deepcopy(tempdict),">="+str(target[j+1][1]):copy.deepcopy(tempdict)}
+            print("===========",j)
+            if j+1 < len(target):
+                attrdict = {"<"+str(target[j+1][1]):copy.deepcopy(tempdict),">="+str(target[j+1][1]):copy.deepcopy(tempdict)}
+            else :
+                attrdict = {"<"+str(target[j][1]):copy.deepcopy(tempdict),">="+str(target[j][1]):copy.deepcopy(tempdict)}
             for i in range(0,len(target)):
-                if target[i][1]<target[j+1][1] :
-                    attrdict["<"+str(target[j+1][1])][str(target[i][0])] = attrdict["<"+str(target[j+1][1])][str(target[i][0])] + 1 
-                else:
-                    attrdict[">="+str(target[j+1][1])][str(target[i][0])] = attrdict[">="+str(target[j+1][1])][str(target[i][0])] + 1 
-                # if target[i][1] in attrdict :
-                #     attrdict[target[i][1]][target[i][0]] = attrdict[target[i][1]][target[i][0]] + 1 
-                # else :
-                #     attrdict[target[i][1]] = copy.deepcopy(tempdict)
-                #     attrdict[target[i][1]][target[i][0]] = attrdict[target[i][1]][target[i][0]] + 1 
-            # print(attrdict)
+                if j+1 < len(target):
+                    if target[i][1]<target[j+1][1] :
+                        attrdict["<"+str(target[j+1][1])][str(target[i][0])] = attrdict["<"+str(target[j+1][1])][str(target[i][0])] + 1 
+                    else:
+                        attrdict[">="+str(target[j+1][1])][str(target[i][0])] = attrdict[">="+str(target[j+1][1])][str(target[i][0])] + 1
+                else : 
+                    if target[i][1]<target[j][1] :
+                        attrdict["<"+str(target[j][1])][str(target[i][0])] = attrdict["<"+str(target[j][1])][str(target[i][0])] + 1 
+                    else:
+                        attrdict[">="+str(target[j][1])][str(target[i][0])] = attrdict[">="+str(target[j][1])][str(target[i][0])] + 1
+            print(attrdict)
             if best_gain < information_gain(attrdict) :
                 best_gain = information_gain(attrdict)
                 potential_split = (target[j][1]+target[j-1][1])/2
         else :
             pass
-    # print("======================")
-    # print(potential_split)
-    # print(best_gain)
-    return(potential_split,best_gain)
-    target = copy.deepcopy(init_target)
-        
-        
+    for i in range(0,len(data)): 
+        target[i].pop()
+    return (potential_split,best_gain)
         
 def missing_value(data, target):
     for i in range(len(data)):
@@ -126,77 +130,199 @@ def missing_value(data, target):
 
 def split_validation_data(data, target):
     data_target = copy.deepcopy(data)
-    print(data_target)
     for i in range(len(data_target)):
         data_target[i].append(target[i][0])
     data_target = numpy.array(data_target)
     train_data ,test_data = train_test_split(data_target,test_size=0.2)
-    print('Train')
-    print(train_data)
-    print('Test')
-    print(test_data)
 
 # def accuracy(data, target):
 #     myC45(data, target)
 
+def remove_root(data, target, val):
+    dataret, targetret = [], []
+    for i,layer in enumerate(data):
+        for element in layer:
+            if element == val:
+                dataret.append(layer)
+                targetret.append(target[i])
+                break
+    # print("DATARET:",dataret)
+    # print("TARGETRET:", targetret)
+    return dataret, targetret
 
-def myC45(data, target):
+def remove_root_continuous(data, target, val, column):
+    dataret, targetret ,removedret, removedtargetret= [], [], [], []
+    for i,layer in enumerate(data):
+        if layer[column] < val:
+            print("el", layer)
+            dataret.append(layer)
+            targetret.append(target[i])
+        else :
+            removedret.append(layer)
+            removedtargetret.append(target[i])
+    # print("DATARET:",dataret)
+    # print("TARGETRET:", targetret)
+    return dataret, targetret, removedret, removedtargetret
+
+def entropy_table(data, target):
+    counttarget = {}
+    for row in target:
+        counttarget[row[0]] = 0
+    for row in target:
+        counttarget[row[0]] += 1
+    
+    return counttarget
+
+def list_value(index, data):
+    listval = set()
+    for i in data:
+        listval.add(i[index])
+
+    return listval
+
+def attribute_table(data, target):
+    dataTemp = copy.deepcopy(data)
+    dataTrans = list(zip(*dataTemp))
+
+    attrtarget = {}
+    for row in target:
+        attrtarget[row[0]] = 0
+
+    attrdict = {}
+    for row in dataTrans:
+        attrins = {}
+        for i in range(0, len(row)):
+            if row[i] not in attrins:
+                attrins[row[i]] = copy.deepcopy(attrtarget) 
+            attrins[row[i]][target[i][0]] += 1
+        attrdict[row] = attrins
+
+    return attrdict
+
+def myC45(data, target, tree=None):
     tempdict = {}
     missing_value(data, target)
-    data = list(zip(*data))
-    for cell in target: 
-        tempdict[str(cell[0])] = 0
-    for row in data:
-        print(row)
-        attrdict = {}
-        for i in range(0,len(row)): 
-            if row[i] in attrdict:
-                attrdict[row[i]][target[i][0]] = attrdict[row[i]][target[i][0]] + 1 
-            else :
-                attrdict[row[i]] = copy.deepcopy(tempdict)
-                attrdict[row[i]][target[i][0]] = attrdict[row[i]][target[i][0]] + 1
-        
+    if tree is None:
+        tree = {}
 
+    # for d in range(len(data)):
+    #     if type(data[d][0]) == float or type(data[d][0]) == int:
+    #         potential_split, best_gain = continuous_value(data[d], target)
+    #         dataTrans = list(zip(*data))
+    #         print("PS", potential_split)
+    #         cv = True
+    #         if entropy_count(entropy_table(dataTrans, target)) == 0:
+    #             tree = target[0]
+    #         else:
+    #             gainParam = attribute_table(dataTrans, target)
+    #             gainList = []
+    #             for i in gainParam:
+    #                 res = gain_ratio(gainParam[i])
+    #                 gainList.append(res)
+    #             root = gainList.index(max(gainList))
+    #             rootVal = attName[root] + " < " + str(potential_split)
+    #             tree[rootVal] = {}
+    #             for i in list_value(root, dataTrans):
+    #                 dataret, targetret = remove_root(dataTrans, target, i, cv)
+    #                 if entropy_count(entropy_table(dataret, targetret)) == 0:
+    #                     tree[rootVal][i] = targetret[0]
+    #                 else:
+    #                     tree[rootVal][i] = myC45(dataret, targetret)
+    #         return tree
+
+    if entropy_count(entropy_table(data, target)) == 0:
+        tree = target[0]
+    else:
+        gainParam = attribute_table(data, target)
+        gainList = []
+        splitList = []
+        for i in gainParam:
+            print("o",i[0])
+            if type(i[0]) == float or type(i[0]) == int:
+                print("==========i", i)
+                potential_split, res = continuous_value(i, target)
+                gainList.append(res)
+                splitList.append(potential_split)
+            else:
+                splitList.append(-999)
+                res = gain_ratio(gainParam[i])
+                gainList.append(res)
+        root = gainList.index(max(gainList))
+        print("root", root)
+        print("SL", splitList)
+        print("GL", gainList)
+        rootVal = attName[root]
+        tree[rootVal] = {}
+        if (splitList[root] == -999):
+            for i in list_value(root, data):
+                dataret, targetret = remove_root(data, target, i)
+                if entropy_count(entropy_table(dataret, targetret)) == 0:
+                    tree[rootVal][i] = targetret[0]
+                else:
+                    tree[rootVal][i] = myC45(dataret, targetret)
+        else:
+            dataret,targetret , removedret, removedtargetret= remove_root_continuous(data, target, splitList[root], root)
+            # print("dataret =========", dataret)
+            # print("removed =========", removedret)
+            # print("entropy =========", entropy_count(entropy_table(dataret, targetret)))
+            # print("entropyremoved =========", entropy_count(entropy_table(removedret, removedtargetret)))
+            if entropy_count(entropy_table(dataret, targetret)) <= 0.5:
+                if not(len(targetret)==0) :
+                    tree[rootVal][i] = targetret[0]
+            else:
+                tree[rootVal][i] = myC45(dataret, targetret)
+            if entropy_count(entropy_table(removedret, removedtargetret)) <= 0.5:
+                if not(len(removedtargetret)==0) :
+                    tree[rootVal][i] = removedtargetret[0]
+            else:
+                try:
+                    tree[rootVal][i] = myC45(removedret, removedtargetret)
+                except RecursionError:
+                    pass
+    return tree
+
+def pretty(d, indent=0):
+    for key, value in d.items():
+        print('    ' * indent + str(key))
+        if isinstance(value, dict):
+            pretty(value, indent+1)
+        else:
+            print('    ' * (indent+1) + str(value))
+
+    
 
 
 # Read iris dataset
 data_iris = datasets.load_iris()
-# print(data_iris)
 data_iris_target = data_iris['target'].tolist()
 data_iris_data = data_iris['data'].tolist()
-print(data_iris_data)
 for i in range(0,len(data_iris_target)) :
     data_iris_target[i] = [data_iris_target[i]]
-print(data_iris_target)
+attName = data_iris['feature_names']
+print(attName)
+
+print(pretty(myC45(data_iris_data, data_iris_target)))
+
 
 # Read play-tennis dataset
 data_play_tennis = pd.read_csv('play-tennis.csv')
+attName = data_play_tennis.columns.tolist()[1:5]
 data_play_tennis = data_play_tennis.values.tolist()
-data_play_tennis
 
 # play-tennis target
 data_play_tennis_target = []
 for x in data_play_tennis:
     data_play_tennis_target.append(x[-1:])
-data_play_tennis_target
 
 # play-tennis data
 data_play_tennis_data = []
 for x in data_play_tennis:
     data_play_tennis_data.append(x[:-1][1:])
-data_play_tennis_data
 
 missing_value(data_play_tennis_data, data_play_tennis_target)
-data_play_tennis_data_tranpose = list(zip(*data_play_tennis_data))
-# continouous_value(data_play_tennis_data, data_play_tennis_target)
+print(pretty(myC45(data_play_tennis_data, data_play_tennis_target)))
+
 
 split_validation_data(data_play_tennis_data, data_play_tennis_target)
 
-from operator import itemgetter
 
-print('ini:', data_play_tennis_data)
-# data_iris_data = list(zip(*data_iris_data))
-# data_play_tennis_data = list(zip(*data_play_tennis_data))
-# print(continouous_value(data_play_tennis_data[0], data_play_tennis_target))
-
-myC45(data_play_tennis_data, data_play_tennis_target)
