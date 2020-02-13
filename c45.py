@@ -3,7 +3,7 @@ from math import log
 from sklearn import datasets
 import pandas as pd
 import math
-from statistics import mode
+from collections import Counter
 
 def missing_value(data, target):
     for i in range(len(data)):
@@ -15,10 +15,8 @@ def missing_value(data, target):
                     for k in range(len(target)):
                         if target[k] == t and k != i:
                             values.append(data[k][j])
-                    data[i][j] = mode(values)
-
-
-
+                    freq = Counter(values)
+                    data[i][j] = freq.most_common()[0][0]
 
 # Read iris dataset
 data_iris = datasets.load_iris()
