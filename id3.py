@@ -9,12 +9,15 @@ def attribute_table(data, target):
     for row in target:
         attrtarget[row[0]] = 0
 
+    attrdict = {}
     for row in data:
         attrins = {}
         for i in range(0, len(row)):
             if row[i] not in attrins:
                 attrins[row[i]] = copy.deepcopy(attrtarget) 
             attrins[row[i]][target[i][0]] += 1
+        attrdict[row] = attrins
+    print(attrdict)
 
 def entropy_count (dictionary) :
     sumentropy = 0
