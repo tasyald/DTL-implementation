@@ -5,6 +5,7 @@ import pandas as pd
 import math
 from collections import Counter
 import copy
+from sklearn.model_selection import train_test_split
 
 def entropy_count (dictionary) :
     sumentropy = 0
@@ -41,7 +42,7 @@ def information_gain (dictionary) :
     print(entropy_total + temp_gain)
 
 def gain_ratio(dictionary):
-    print(dictionary)
+    print('dict', dictionary)
     total_entropy_dict = {"total" : {}}
     for attr in dictionary:
         for target in dictionary[attr] : 
@@ -100,6 +101,27 @@ def missing_value(data, target):
                     freq = Counter(values)
                     data[i][j] = freq.most_common()[0][0]
 
+def split_validation_data(data, target):
+    data_target = data
+    print(data_target)
+    for i in range(len(data_target)):
+        data_target[i].append(target[i][0])
+    data_target = numpy.array(data_target)
+    train_data ,test_data = train_test_split(data_target,test_size=0.2)
+    print('Train')
+    print(train_data)
+    print('Test')
+    print(test_data)
+
+# def accuracy(data, target):
+#     myC45(data, target)
+
+
+# def myC45(data, target):
+#     missing_value(data_play_tennis_data, data_play_tennis_target)
+
+
+
 # Read iris dataset
 data_iris = datasets.load_iris()
 data_iris
@@ -123,5 +145,8 @@ for x in data_play_tennis:
 data_play_tennis_data
 
 missing_value(data_play_tennis_data, data_play_tennis_target)
-data_play_tennis_data = list(zip(*data_play_tennis_data))
+data_play_tennis_data_tranpose = list(zip(*data_play_tennis_data))
 continouous_value(data_play_tennis_data, data_play_tennis_target)
+
+split_validation_data(data_play_tennis_data, data_play_tennis_target)
+
