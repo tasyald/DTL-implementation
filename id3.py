@@ -4,6 +4,20 @@ from sklearn import datasets
 import pandas as pd
 import copy
 
+def entropy_table(data, target):
+    counttarget = {}
+    for row in target:
+        counttarget[row[0]] = 0
+    for row in target:
+        counttarget[row[0]] += 1
+    print(counttarget)
+
+
+def list_value(index, data):
+    listval = set(data[index])
+    countvalue = len(listval)
+    return(listval)
+
 def attribute_table(data, target):
     attrtarget = {}
     for row in target:
