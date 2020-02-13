@@ -40,7 +40,7 @@ def information_gain (dictionary) :
     print("INI GAINNYA")
     print(entropy_total + temp_gain)
 
-def split_information(dictionary):
+def gain_ratio(dictionary):
     print(dictionary)
     total_entropy_dict = {"total" : {}}
     for attr in dictionary:
@@ -52,15 +52,19 @@ def split_information(dictionary):
     total_dataset = 0
     for target in total_entropy_dict["total"]:
         total_dataset = total_dataset + total_entropy_dict["total"][target]
+    entropy_total = entropy_count(total_entropy_dict["total"])
     split = 0
+    temp_gain = 0
     for attr in dictionary :        
         count_total_attribute = 0
         entropy_attr = entropy_count(dictionary[attr])
         for target in dictionary[attr] : 
             count_total_attribute = count_total_attribute + dictionary[attr][target] 
+        temp_gain = temp_gain - (count_total_attribute/total_dataset) * entropy_attr
         split = split - (count_total_attribute/total_dataset) * math.log2(count_total_attribute/total_dataset)
-    print("INI SPLIT INFORMATION")
-    print(split)
+    gain = entropy_total + temp_gain
+    print('SPLIT: ', split)
+    print('INI GAIN RATIO: ', gain/split)
     
 
 def continouous_value (data, target) :
@@ -80,7 +84,7 @@ def continouous_value (data, target) :
                 attrdict[row[i]][target[i][0]] = attrdict[row[i]][target[i][0]] + 1 
         # print(attrdict)
         information_gain(attrdict)
-        # split_information(attrdict)
+        gain_ratio(attrdict)
         
         
 def missing_value(data, target):
