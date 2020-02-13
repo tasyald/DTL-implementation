@@ -9,6 +9,7 @@ from sklearn.model_selection import train_test_split
 import numpy
 from operator import itemgetter
 
+
 def entropy_count (dictionary) :
     sumentropy = 0
     counttotal = 0
@@ -135,8 +136,48 @@ def split_validation_data(data, target):
     data_target = numpy.array(data_target)
     train_data ,test_data = train_test_split(data_target,test_size=0.2)
 
-# def accuracy(data, target):
-#     myC45(data, target)
+# def rule_set(tree_dictionary, rule) :
+#     if not(type(tree_dictionary) is dict) :
+#         return 
+#     pass
+
+def evaluate(tree_dictionary, row, original_target, header):
+    if not(type(tree_dictionary) is dict) :
+        # print (tree_dictionary)
+        return original_target == tree_dictionary
+    else :
+        for item in tree_dictionary :
+            if row[header.index(item.lower())] in tree_dictionary[item]:
+                return evaluate(tree_dictionary[item][row[header.index(item.lower())]],row,original_target,header)
+        return False
+        
+def accuracy(tree, data, target, header):
+    count_true = 0
+    for i in range(0,len(data)) : 
+        if evaluate(tree,data[i], target[i], header) :
+            count_true = count_true + 1
+    print(count_true)
+    return count_true/len(data)
+
+def pruning(data, target, tree_dictionary_iterator, tree_dictionary_root, header) : 
+    if not(type(tree_dictionary_iterator) is dict) :
+        pass
+    else :
+        # prune_flag = True
+        for child in tree_dictionary_iterator:
+            if not(type(tree_dictionary_iterator[child]) is dict) :
+                temp_tree = copy.deepcopy(tree_dictionary_root)
+                temp_value = copy.deepcopy(tree_dictionary_iterator[child])
+                print(child)
+                del tree_dictionary_iterator[child]
+                print(tree_dictionary_root)
+                print(accuracy(tree_dictionary_root,data,target,header))
+                if accuracy(tree_dictionary_root,data,target,header)<=accuracy(temp_tree,data,target,header):
+                    tree_dictionary_iterator[child] = copy.deepcopy(temp_value)
+            else :
+                pruning(data,target,tree_dictionary_iterator[child],tree_dictionary_root, header)
+                if len(tree_dictionary_iterator[child]) == 0 :
+                    del tree_dictionary_iterator[child] 
 
 def remove_root(data, target, val):
     dataret, targetret = [], []
@@ -299,7 +340,7 @@ data_iris_data = data_iris['data'].tolist()
 for i in range(0,len(data_iris_target)) :
     data_iris_target[i] = [data_iris_target[i]]
 attName = data_iris['feature_names']
-print(attName)
+# print(attName)
 
 print(pretty(myC45(data_iris_data, data_iris_target)))
 
@@ -308,7 +349,6 @@ print(pretty(myC45(data_iris_data, data_iris_target)))
 data_play_tennis = pd.read_csv('play-tennis.csv')
 attName = data_play_tennis.columns.tolist()[1:5]
 data_play_tennis = data_play_tennis.values.tolist()
-
 # play-tennis target
 data_play_tennis_target = []
 for x in data_play_tennis:
@@ -318,6 +358,12 @@ for x in data_play_tennis:
 data_play_tennis_data = []
 for x in data_play_tennis:
     data_play_tennis_data.append(x[:-1][1:])
+
+dummy_tree = {'Outlook': {'Sunny': {'humidity': { 'High': ['No']}}, 'Overcast': ['Yes'], 
+'Rain': {'wind': {'Weak': ['Yes'], 'Strong': ['No']}}}}
+# print (accuracy(data_play_tennis_data, data_play_tennis_target, data_play_tennis_header))
+pruning(data_play_tennis_data, data_play_tennis_target,dummy_tree,dummy_tree, data_play_tennis_header )
+print(dummy_tree)
 
 missing_value(data_play_tennis_data, data_play_tennis_target)
 print(pretty(myC45(data_play_tennis_data, data_play_tennis_target)))
