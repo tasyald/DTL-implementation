@@ -3,27 +3,22 @@ from math import log
 from sklearn import datasets
 import pandas as pd
 import math
-from statistics import mode
+from collections import Counter
 import copy
+
 def entropy_count (dictionary) :
     sumentropy = 0
     counttotal = 0
     for item in dictionary :
         counttotal = counttotal + dictionary[item]
-    # print(counttotal)
     for item in dictionary :
         probability = dictionary[item]/counttotal
         if not (probability ==0):
             sumentropy = sumentropy - (probability)*math.log2(probability)
-    # print(sumentropy)
     return sumentropy
 
 def information_gain (dictionary) :
-    
-    # print(dictionary)
-    # print("jancok")
     total_entropy_dict = {"total" : {}}
-    
     for attr in dictionary :
         for target in dictionary[attr] : 
             if target in total_entropy_dict["total"] :
@@ -32,9 +27,7 @@ def information_gain (dictionary) :
                 total_entropy_dict["total"][target] = dictionary[attr][target]; 
     total_dataset = 0
     for target in total_entropy_dict["total"]:
-        total_dataset = total_dataset + total_entropy_dict["total"][target] 
-    # print(total_entropy_dict)
-    # print(total_dataset)
+        total_dataset = total_dataset + total_entropy_dict["total"][target]
     entropy_total = entropy_count(total_entropy_dict["total"])
     # print(entropy_total)
     temp_gain = 0
@@ -48,6 +41,33 @@ def information_gain (dictionary) :
     # print(entropy_total + temp_gain)
     return entropy_total + temp_gain
         # entropy_count(attrdict[attr])
+
+def gain_ratio(dictionary):
+    print(dictionary)
+    total_entropy_dict = {"total" : {}}
+    for attr in dictionary:
+        for target in dictionary[attr] : 
+            if target in total_entropy_dict["total"] :
+                total_entropy_dict["total"][target] = total_entropy_dict["total"][target]+ dictionary[attr][target]; 
+            else :
+                total_entropy_dict["total"][target] = dictionary[attr][target]; 
+    total_dataset = 0
+    for target in total_entropy_dict["total"]:
+        total_dataset = total_dataset + total_entropy_dict["total"][target]
+    entropy_total = entropy_count(total_entropy_dict["total"])
+    split = 0
+    temp_gain = 0
+    for attr in dictionary :        
+        count_total_attribute = 0
+        entropy_attr = entropy_count(dictionary[attr])
+        for target in dictionary[attr] : 
+            count_total_attribute = count_total_attribute + dictionary[attr][target] 
+        temp_gain = temp_gain - (count_total_attribute/total_dataset) * entropy_attr
+        split = split - (count_total_attribute/total_dataset) * math.log2(count_total_attribute/total_dataset)
+    gain = entropy_total + temp_gain
+    print('SPLIT: ', split)
+    print('INI GAIN RATIO: ', gain/split)
+    
 
 def continouous_value (data, target) :
     tempdict = {}
@@ -103,8 +123,6 @@ def continouous_value (data, target) :
         
         
         
-
-
 def missing_value(data, target):
     for i in range(len(data)):
         for j in range(len(data[i])):
@@ -115,10 +133,8 @@ def missing_value(data, target):
                     for k in range(len(target)):
                         if target[k] == t and k != i:
                             values.append(data[k][j])
-                    data[i][j] = mode(values)
-
-
-
+                    freq = Counter(values)
+                    data[i][j] = freq.most_common()[0][0]
 
 # Read iris dataset
 data_iris = datasets.load_iris()
