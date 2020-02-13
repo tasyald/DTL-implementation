@@ -6,6 +6,7 @@ import math
 from collections import Counter
 import copy
 from sklearn.model_selection import train_test_split
+import numpy
 
 def entropy_count (dictionary) :
     sumentropy = 0
@@ -74,26 +75,12 @@ def continouous_value (data, target) :
     tempdict = {}
     for cell in target : 
         tempdict[str(cell[0])] = 0
-    # initdict = copy.deepcopy(tempdict)
-    # print(tempdict)
-    # print(data)
-    init_target = copy.deepcopy(target)
-    # sortattr = row.
     attrdict = {}
     for i in range(0,len(data)): 
         target[i].append(data[i])
     target.sort(key=itemgetter(0), reverse=False)
     target.sort(key=itemgetter(1), reverse=False)
-    # print(target)
-    # tempdict = copy.deepcopy(initdict)
     previous_value = target[0][0]
-    # for i in range(0,len(target)):
-    #     if target[i][1] in attrdict :
-    #         attrdict[target[i][1]][target[i][0]] = attrdict[target[i][1]][target[i][0]] + 1 
-    #     else :
-    #         attrdict[target[i][1]] = copy.deepcopy(tempdict)
-    #         attrdict[target[i][1]][target[i][0]] = attrdict[target[i][1]][target[i][0]] + 1 
-    # best_gain = information_gain(attrdict)
     best_gain = -999
     for j in range(1,len(target)) :
         if not(previous_value == target[j][0]):
@@ -105,7 +92,7 @@ def continouous_value (data, target) :
                     attrdict["<"+str(target[j+1][1])][str(target[i][0])] = attrdict["<"+str(target[j+1][1])][str(target[i][0])] + 1 
                 else:
                     attrdict[">="+str(target[j+1][1])][str(target[i][0])] = attrdict[">="+str(target[j+1][1])][str(target[i][0])] + 1 
-                # if target[i][1]<previous_value :
+                # if target[i][1] in attrdict :
                 #     attrdict[target[i][1]][target[i][0]] = attrdict[target[i][1]][target[i][0]] + 1 
                 # else :
                 #     attrdict[target[i][1]] = copy.deepcopy(tempdict)
@@ -138,7 +125,7 @@ def missing_value(data, target):
                     data[i][j] = freq.most_common()[0][0]
 
 def split_validation_data(data, target):
-    data_target = data
+    data_target = copy.deepcopy(data)
     print(data_target)
     for i in range(len(data_target)):
         data_target[i].append(target[i][0])
@@ -153,8 +140,22 @@ def split_validation_data(data, target):
 #     myC45(data, target)
 
 
-# def myC45(data, target):
-#     missing_value(data_play_tennis_data, data_play_tennis_target)
+def myC45(data, target):
+    tempdict = {}
+    missing_value(data, target)
+    data = list(zip(*data))
+    for cell in target: 
+        tempdict[str(cell[0])] = 0
+    for row in data:
+        print(row)
+        attrdict = {}
+        for i in range(0,len(row)): 
+            if row[i] in attrdict:
+                attrdict[row[i]][target[i][0]] = attrdict[row[i]][target[i][0]] + 1 
+            else :
+                attrdict[row[i]] = copy.deepcopy(tempdict)
+                attrdict[row[i]][target[i][0]] = attrdict[row[i]][target[i][0]] + 1
+        
 
 
 
@@ -187,13 +188,15 @@ data_play_tennis_data
 
 missing_value(data_play_tennis_data, data_play_tennis_target)
 data_play_tennis_data_tranpose = list(zip(*data_play_tennis_data))
-continouous_value(data_play_tennis_data, data_play_tennis_target)
+# continouous_value(data_play_tennis_data, data_play_tennis_target)
 
 split_validation_data(data_play_tennis_data, data_play_tennis_target)
 
 from operator import itemgetter
 
-print(data_play_tennis_data[0])
-data_iris_data = list(zip(*data_iris_data))
-data_play_tennis_data = list(zip(*data_play_tennis_data))
-print(continouous_value(data_play_tennis_data[0], data_play_tennis_target))
+print('ini:', data_play_tennis_data)
+# data_iris_data = list(zip(*data_iris_data))
+# data_play_tennis_data = list(zip(*data_play_tennis_data))
+# print(continouous_value(data_play_tennis_data[0], data_play_tennis_target))
+
+myC45(data_play_tennis_data, data_play_tennis_target)
