@@ -118,6 +118,14 @@ def id3(data, target, tree=None):
 
     return tree
 
+def pretty(d, indent=0):
+    for key, value in d.items():
+        print('    ' * indent + str(key))
+        if isinstance(value, dict):
+            pretty(value, indent+1)
+        else:
+            print('    ' * (indent+1) + str(value))
+
 # Read iris dataset
 data_iris = datasets.load_iris()
 data_iris
@@ -141,4 +149,5 @@ for x in data_play_tennis:
     data_play_tennis_data.append(x[:-1][1:])
 data_play_tennis_data
 
+print(pretty(id3(data_play_tennis_data, data_play_tennis_target)))
 print(id3(data_play_tennis_data, data_play_tennis_target))
