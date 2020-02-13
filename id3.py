@@ -15,7 +15,6 @@ def attribute_table(data, target):
             if row[i] not in attrins:
                 attrins[row[i]] = copy.deepcopy(attrtarget) 
             attrins[row[i]][target[i][0]] += 1
-        print(attrins)
 
 def entropy_count (dictionary) :
     sumentropy = 0
@@ -61,6 +60,18 @@ def information_gain (dictionary) :
     
         # entropy_count(attrdict[attr])
 
+def remove_root(data, target, val):
+    dataret, targetret = [], []
+
+    for i,layer in enumerate(data):
+        for element in layer:
+            if element == val:
+                dataret.append(layer)
+                targetret.append(target[i])
+                break
+
+    return dataret, targetret
+
 # Read iris dataset
 data_iris = datasets.load_iris()
 data_iris
@@ -82,6 +93,11 @@ data_play_tennis_data = []
 for x in data_play_tennis:
     data_play_tennis_data.append(x[:-1][1:])
 data_play_tennis_data
+
+# remote root
+data, target = remove_root(data_play_tennis_data, data_play_tennis_target, 'Sunny')
+for i in data:
+    print(i)
 
 data_play_tennis_data = list(zip(*data_play_tennis_data))
 # print(data_play_tennis_data[0])
