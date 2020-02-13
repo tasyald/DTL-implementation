@@ -137,30 +137,50 @@ def split_validation_data(data, target):
     print('Test')
     print(test_data)
 
-def rule_set(tree_dictionary, rule) :
-    if not(type(tree_dictionary) is dict) :
-        return 
-    pass
+# def rule_set(tree_dictionary, rule) :
+#     if not(type(tree_dictionary) is dict) :
+#         return 
+#     pass
 
 def evaluate(tree_dictionary, row, original_target, header):
     if not(type(tree_dictionary) is dict) :
-        print (tree_dictionary)
+        # print (tree_dictionary)
         return original_target == tree_dictionary
     else :
         for item in tree_dictionary :
             if row[header.index(item.lower())] in tree_dictionary[item]:
-                return predict(tree_dictionary[item][row[header.index(item.lower())]],row,original_target,header)
+                return evaluate(tree_dictionary[item][row[header.index(item.lower())]],row,original_target,header)
         return False
         
-def accuracy(data, target, header):
-    dummy_tree = {'Outlook': {'Sunny': {'humidity': { 'High': ['No']}}, 'Overcast': ['Yes'], 'Rain': {'wind': {'Weak': ['Yes'], 'Strong': ['No']}}}}
+def accuracy(tree, data, target, header):
     count_true = 0
     for i in range(0,len(data)) : 
-        if evaluate(dummy_tree,data[i], target[i], header) :
+        if evaluate(tree,data[i], target[i], header) :
             count_true = count_true + 1
+    print(count_true)
     return count_true/len(data)
 
-def pruning(data)
+def pruning(data, target, tree_dictionary_iterator, tree_dictionary_root, header) : 
+    if not(type(tree_dictionary_iterator) is dict) :
+        pass
+    else :
+        # prune_flag = True
+        for child in tree_dictionary_iterator:
+            if not(type(tree_dictionary_iterator[child]) is dict) :
+                temp_tree = copy.deepcopy(tree_dictionary_root)
+                temp_value = copy.deepcopy(tree_dictionary_iterator[child])
+                print(child)
+                del tree_dictionary_iterator[child]
+                print(tree_dictionary_root)
+                print(accuracy(tree_dictionary_root,data,target,header))
+                if accuracy(tree_dictionary_root,data,target,header)<=accuracy(temp_tree,data,target,header):
+                    tree_dictionary_iterator[child] = copy.deepcopy(temp_value)
+            else :
+                pruning(data,target,tree_dictionary_iterator[child],tree_dictionary_root, header)
+                if len(tree_dictionary_iterator[child]) == 0 :
+                    del tree_dictionary_iterator[child] 
+
+        
 
 def myC45(data, target):
     tempdict = {}
@@ -169,7 +189,7 @@ def myC45(data, target):
     for cell in target: 
         tempdict[str(cell[0])] = 0
     for row in data:
-        print(row)
+        # print(row)
         attrdict = {}
         for i in range(0,len(row)): 
             if row[i] in attrdict:
@@ -186,17 +206,17 @@ data_iris = datasets.load_iris()
 # print(data_iris)
 data_iris_target = data_iris['target'].tolist()
 data_iris_data = data_iris['data'].tolist()
-print(data_iris_data)
+# print(data_iris_data)
 for i in range(0,len(data_iris_target)) :
     data_iris_target[i] = [data_iris_target[i]]
-print(data_iris_target)
+# print(data_iris_target)
 
 # Read play-tennis dataset
 data_play_tennis = pd.read_csv('play-tennis.csv')
 data_play_tennis = data_play_tennis.values.tolist()
 data_play_tennis_header = pd.read_csv('play-tennis.csv',nrows = 1).columns[1:5]
 data_play_tennis_header = data_play_tennis_header.tolist()
-print(data_play_tennis_header)
+# print(data_play_tennis_header)
 for i in range(0,len(data_play_tennis_header)) :
     data_play_tennis_header[i] = data_play_tennis_header[i].lower()
 # play-tennis target
@@ -211,7 +231,11 @@ for x in data_play_tennis:
     data_play_tennis_data.append(x[:-1][1:])
 data_play_tennis_data
 
-print (accuracy(data_play_tennis_data, data_play_tennis_target, data_play_tennis_header))
+dummy_tree = {'Outlook': {'Sunny': {'humidity': { 'High': ['No']}}, 'Overcast': ['Yes'], 
+'Rain': {'wind': {'Weak': ['Yes'], 'Strong': ['No']}}}}
+# print (accuracy(data_play_tennis_data, data_play_tennis_target, data_play_tennis_header))
+pruning(data_play_tennis_data, data_play_tennis_target,dummy_tree,dummy_tree, data_play_tennis_header )
+print(dummy_tree)
 
 missing_value(data_play_tennis_data, data_play_tennis_target)
 data_play_tennis_data_tranpose = list(zip(*data_play_tennis_data))
@@ -221,7 +245,7 @@ split_validation_data(data_play_tennis_data, data_play_tennis_target)
 
 from operator import itemgetter
 
-print('ini:', data_play_tennis_data)
+# print('ini:', data_play_tennis_data)
 # data_iris_data = list(zip(*data_iris_data))
 # data_play_tennis_data = list(zip(*data_play_tennis_data))
 # print(continouous_value(data_play_tennis_data[0], data_play_tennis_target))
