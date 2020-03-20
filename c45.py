@@ -382,8 +382,51 @@ def pretty(d, indent=0):
         else:
             print('    ' * (indent+1) + str(value))
 
-    
+def predictcontinuous(tree, data, index_attribute):
+    if len(tree.keys())==1:
+        for key, value in tree.items():
+            print("==== atas ====")
+            print(attName.index(key))
+            return predict(value, data, attName.index(key))
+    else:
+        for key, value in tree.items():
+            if key[0] == ">":
+                split = float(key[2:])
+            else:
+                split = float(key[1:])
+            print("==== bawah ====")
+            print(str(split) + str(data[index_attribute]))
+            if data[index_attribute] < split :
+                if key[0] == "<" and isinstance(value,dict):
+                    return predict(value,data,-1)
+                if key[0] == "<" and not(isinstance(value,dict)):
+                    return value[0]
+                pass
+            else:
+                print(key)
+                if key[0] == ">" and isinstance(value, dict):
+                    return predict(value,data,-1)
+                if key[0] == ">" and not(isinstance(value,dict)):
+                    return value[0]
+                pass
+ 
+            # print('    ' * (indent+1) + str(value))
 
+def predict(tree, data, index_attribute):
+    if len(tree.keys())==1:
+        for key, value in tree.items():
+            print("==== atas ====")
+            print(attName.index(key))
+            return predict(value, data, attName.index(key))
+    else:
+        for key, value in tree.items():
+            if data[index_attribute] == key :
+                if isinstance(value,dict):
+                    return predict(value,data,-1)
+                else :
+                    return value[0]
+                pass
+ 
 
 # Read iris dataset
 data_iris = datasets.load_iris()
@@ -398,7 +441,7 @@ print(attName)
 
 # Read play-tennis dataset
 data_play_tennis = pd.read_csv('play-tennis.csv')
-# attName = data_play_tennis.columns.tolist()[1:5]
+attName = data_play_tennis.columns.tolist()[1:5]
 data_play_tennis = data_play_tennis.values.tolist()
 # play-tennis target
 data_play_tennis_target = []
@@ -410,7 +453,8 @@ data_play_tennis_data = []
 for x in data_play_tennis:
     data_play_tennis_data.append(x[:-1][1:])
 
-print(pretty(myC45(data_play_tennis_data, data_play_tennis_target)))
+
+
 
 # dummy_tree = {'Outlook': {'Sunny': {'humidity': { 'High': ['No']}}, 'Overcast': ['Yes'], 
 # 'Rain': {'wind': {'Weak': ['Yes'], 'Strong': ['No']}}}}
@@ -419,14 +463,19 @@ print(pretty(myC45(data_play_tennis_data, data_play_tennis_target)))
 # print(dummy_tree)
 missing_value(data_play_tennis_data, data_play_tennis_target)
 # print(data_play_tennis_data)
-temp_continuous_check = attribute_table(data_iris_data,data_iris_target)
-print(temp_continuous_check)
-for every in temp_continuous_check:
-    potential_split, best_gain = continuous_value(every,data_iris_target)
-    print(potential_split,best_gain)
-
-print(pretty(myC45continuous(data_iris_data, data_iris_target)))
-
+# temp_continuous_check = attribute_table(data_iris_data,data_iris_target)
+# print(temp_continuous_check)
+# for every in temp_continuous_check:
+#     potential_split, best_gain = continuous_value(every,data_iris_target)
+#     print(potential_split,best_gain)
+treetennis = myC45(data_play_tennis_data, data_play_tennis_target)
+print(pretty(treetennis))
+# treecontinuouos = myC45continuous(data_iris_data, data_iris_target)
+# print(treecontinuouos)
+# print(pretty(treecontinuouos))
+# print(data_iris_data[55])
+print(data_play_tennis_target)
+print(predict(treetennis,data_play_tennis_data[13],-1))
 
 split_validation_data(data_play_tennis_data, data_play_tennis_target)
 
