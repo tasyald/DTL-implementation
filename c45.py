@@ -76,7 +76,7 @@ def gain_ratio(dictionary):
 
 def continuous_value (data, target) :
     tempdict = {}
-    print(data)
+    # print(data)
     init_target = copy.deepcopy(target)
     for cell in init_target : 
         tempdict[str(cell[0])] = 0
@@ -88,7 +88,7 @@ def continuous_value (data, target) :
     previous_value = init_target[0][0]
     best_gain = -999
     potential_split = 0
-    print(init_target)
+    # print(init_target)
     for j in range(1,len(init_target)) :
         if not(previous_value == init_target[j][0]) :
             previous_value = init_target[j][0]
@@ -290,9 +290,9 @@ def myC45(data, target, tree=None):
                 res = gain_ratio(gainParam[i])
                 gainList.append(res)
         root = gainList.index(max(gainList))
-        print("root", root)
-        print("SL", splitList)
-        print("GL", gainList)
+        # print("root", root)
+        # print("SL", splitList)
+        # print("GL", gainList)
         rootVal = attName[root]
         tree[rootVal] = {}
         if (splitList[root] == -999):
@@ -304,10 +304,10 @@ def myC45(data, target, tree=None):
                     tree[rootVal][i] = myC45(dataret, targetret)
         else:
             dataret,targetret , removedret, removedtargetret= remove_root_continuous(data, target, splitList[root], root)
-            print("dataret =========", dataret)
-            print("removed =========", removedret)
-            print("entropy =========", entropy_count(entropy_table(dataret, targetret)))
-            print("entropyremoved =========", entropy_count(entropy_table(removedret, removedtargetret)))
+            # print("dataret =========", dataret)
+            # print("removed =========", removedret)
+            # print("entropy =========", entropy_count(entropy_table(dataret, targetret)))
+            # print("entropyremoved =========", entropy_count(entropy_table(removedret, removedtargetret)))
             if entropy_count(entropy_table(dataret, targetret)) <= 0.5:
                 if not(len(targetret)==0) :
                     tree[rootVal][i] = targetret[0]
@@ -353,16 +353,16 @@ def myC45continuous(data, target, tree=None):
         rootVal = attName[root]
         data_left, data_right, target_left, target_right = split_data_continuous(data,target,splitList[root],root)
         tree[rootVal] = {"<"+str(splitList[root]):{},">="+str(splitList[root]):{}}
-        print("==== gain list =====")
-        print(gainList)
-        print("==== potential split =====")
-        print(splitList)
-        print("==== data left =====")
-        print(data_left)
-        print(target_left)
-        print("==== data right =====")
-        print(data_right)
-        print(target_right)
+        # print("==== gain list =====")
+        # print(gainList)
+        # print("==== potential split =====")
+        # print(splitList)
+        # print("==== data left =====")
+        # print(data_left)
+        # print(target_left)
+        # print("==== data right =====")
+        # print(data_right)
+        # print(target_right)
         if entropy_count(entropy_table(data_left, target_left)) == 0:
             tree[rootVal]["<"+str(splitList[root])] = target_left[0]
         else:
@@ -385,8 +385,8 @@ def pretty(d, indent=0):
 def predictcontinuous(tree, data, index_attribute):
     if len(tree.keys())==1:
         for key, value in tree.items():
-            print("==== atas ====")
-            print(attName.index(key))
+            # print("==== atas ====")
+            # print(attName.index(key))
             return predict(value, data, attName.index(key))
     else:
         for key, value in tree.items():
@@ -394,8 +394,8 @@ def predictcontinuous(tree, data, index_attribute):
                 split = float(key[2:])
             else:
                 split = float(key[1:])
-            print("==== bawah ====")
-            print(str(split) + str(data[index_attribute]))
+            # print("==== bawah ====")
+            # print(str(split) + str(data[index_attribute]))
             if data[index_attribute] < split :
                 if key[0] == "<" and isinstance(value,dict):
                     return predict(value,data,-1)
@@ -415,8 +415,8 @@ def predictcontinuous(tree, data, index_attribute):
 def predict(tree, data, index_attribute):
     if len(tree.keys())==1:
         for key, value in tree.items():
-            print("==== atas ====")
-            print(attName.index(key))
+            # print("==== atas ====")
+            # print(attName.index(key))
             return predict(value, data, attName.index(key))
     else:
         for key, value in tree.items():
@@ -435,7 +435,7 @@ data_iris_data = data_iris['data'].tolist()
 for i in range(0,len(data_iris_target)) :
     data_iris_target[i] = [data_iris_target[i]]
 attName = data_iris['feature_names']
-print(attName)
+# print(attName)
 
 
 
