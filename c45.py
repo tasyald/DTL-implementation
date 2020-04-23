@@ -440,43 +440,44 @@ print(attName)
 
 
 # Read play-tennis dataset
-data_play_tennis = pd.read_csv('play-tennis.csv')
-attName = data_play_tennis.columns.tolist()[1:5]
-data_play_tennis = data_play_tennis.values.tolist()
-# play-tennis target
-data_play_tennis_target = []
-for x in data_play_tennis:
-    data_play_tennis_target.append(x[-1:])
+# data_play_tennis = pd.read_csv('play-tennis.csv')
+# # attName = data_play_tennis.columns.tolist()[1:5]
+# data_play_tennis = data_play_tennis.values.tolist()
+# # play-tennis target
+# data_play_tennis_target = []
+# for x in data_play_tennis:
+#     data_play_tennis_target.append(x[-1:])
 
-# play-tennis data
-data_play_tennis_data = []
-for x in data_play_tennis:
-    data_play_tennis_data.append(x[:-1][1:])
-
-
+# # play-tennis data
+# data_play_tennis_data = []
+# for x in data_play_tennis:
+#     data_play_tennis_data.append(x[:-1][1:])
 
 
+
+missing_value(data_iris_data,data_iris_target)
+treecontinuouos = myC45continuous(data_iris_data, data_iris_target)
+print(treecontinuouos)
+print(pretty(treecontinuouos))
 # dummy_tree = {'Outlook': {'Sunny': {'humidity': { 'High': ['No']}}, 'Overcast': ['Yes'], 
 # 'Rain': {'wind': {'Weak': ['Yes'], 'Strong': ['No']}}}}
 # print (accuracy(data_play_tennis_data, data_play_tennis_target, data_play_tennis_header))
 # pruning(data_play_tennis_data, data_play_tennis_target,dummy_tree,dummy_tree, data_play_tennis_header )
 # print(dummy_tree)
-missing_value(data_play_tennis_data, data_play_tennis_target)
+# missing_value(data_play_tennis_data, data_play_tennis_target)
 # print(data_play_tennis_data)
 # temp_continuous_check = attribute_table(data_iris_data,data_iris_target)
 # print(temp_continuous_check)
 # for every in temp_continuous_check:
 #     potential_split, best_gain = continuous_value(every,data_iris_target)
 #     print(potential_split,best_gain)
-treetennis = myC45(data_play_tennis_data, data_play_tennis_target)
-print(pretty(treetennis))
-# treecontinuouos = myC45continuous(data_iris_data, data_iris_target)
-# print(treecontinuouos)
-# print(pretty(treecontinuouos))
-# print(data_iris_data[55])
-print(data_play_tennis_target)
-print(predict(treetennis,data_play_tennis_data[13],-1))
+# treetennis = myC45(data_play_tennis_data, data_play_tennis_target)
+# print(pretty(treetennis))
 
-split_validation_data(data_play_tennis_data, data_play_tennis_target)
+# print(data_iris_data[55])
+# print(data_play_tennis_target)
+# print(predict(treetennis,data_play_tennis_data[2],-1))
+
+# split_validation_data(data_play_tennis_data, data_play_tennis_target)
 
 
